@@ -48,6 +48,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
     vtkDoubleArray *syy = vtkDoubleArray::New();
     vtkDoubleArray *syz = vtkDoubleArray::New();
     vtkDoubleArray *szz = vtkDoubleArray::New();
+    vtkDoubleArray *rho10 = vtkDoubleArray::New();
     vtkIntArray    *matId = vtkIntArray::New();
     vtkDoubleArray *rho = vtkDoubleArray::New();
 
@@ -73,6 +74,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
         syy->InsertNextValue( node.values[6] );
         syz->InsertNextValue( node.values[7] );
         szz->InsertNextValue( node.values[8] );
+        rho10->InsertNextValue( node.values[9] );
         matId->InsertNextValue( node.getMaterialId() );
         rho->InsertNextValue( node.getRho() );
         nodeNumber->InsertNextValue( node.number );
@@ -145,6 +147,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
     syy->SetName("syy");
     syz->SetName("syz");
     szz->SetName("szz");
+    rho10->SetName("rho10");
     matId->SetName("materialID");
     rho->SetName("rho");
     contact->SetName("contact");
@@ -161,6 +164,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
     g->GetPointData()->AddArray(syy);
     g->GetPointData()->AddArray(syz);
     g->GetPointData()->AddArray(szz);
+    g->GetPointData()->AddArray(rho10);
     g->GetPointData()->AddArray(matId);
     g->GetPointData()->AddArray(rho);
     g->GetPointData()->AddArray(nodeNumber);
@@ -184,6 +188,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
     syy->Delete();
     syz->Delete();
     szz->Delete();
+    rho10->Delete();
     matId->Delete();
     rho->Delete();
     nodeNumber->Delete();

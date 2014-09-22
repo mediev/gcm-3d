@@ -132,7 +132,7 @@ void gcm::TetrSecondOrderMinMaxInterpolator::interpolate(CalcNode& node,
     addNodes[4] = &addNode4;
     addNodes[5] = &addNode5;
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 10; i++) {
         float min = baseNodes[0]->values[i];
         float max = baseNodes[0]->values[i];
         for (int z = 1; z < 4; z++) {

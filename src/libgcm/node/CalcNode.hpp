@@ -9,7 +9,7 @@
 #include "libgcm/util/Types.hpp"
 #include "libgcm/Engine.hpp"
 
-#define VALUES_NUMBER 9
+#define VALUES_NUMBER 10
 using namespace std;
 using namespace gcm;
 
@@ -90,7 +90,7 @@ namespace gcm {
         mutable gcm::real mainStresses[3];
 
         // current material density
-        gcm::real rho;
+        // gcm::real rho;
         // node material id
         uchar materialId;
 
@@ -534,9 +534,9 @@ namespace std {
         for (int i = 0; i < 3; i++)
             os << " " << node.values[i];
         os << "\n\tStress:";
-        for (int i = 3; i < VALUES_NUMBER; i++)
+        for (int i = 3; i < VALUES_NUMBER - 1; i++)
             os << " " << node.values[i];
-        os << "\n\tRho: " << node.getRho();
+        os << "\n\tRho: " << node.values[VALUES_NUMBER - 1];
         return os;
     }
 }

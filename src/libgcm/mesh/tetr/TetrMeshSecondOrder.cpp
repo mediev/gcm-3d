@@ -467,7 +467,7 @@ void gcm::TetrMeshSecondOrder::fillSecondOrderNode(CalcNode& newNode, int nodeId
     for (int i = 0; i < 3; i++)
         newNode.coords[i] = (node1.coords[i] + node2.coords[i]) * 0.5;
 
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < 10; i++)
         newNode.values[i] = (node1.values[i] + node2.values[i]) * 0.5;
 
     newNode.setRho((node1.getRho() + node2.getRho()) * 0.5);

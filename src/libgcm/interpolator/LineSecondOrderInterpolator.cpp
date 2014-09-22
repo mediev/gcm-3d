@@ -25,7 +25,7 @@ void gcm::LineSecondOrderInterpolator::interpolate(CalcNode& node, CalcNode& nod
     // FIXME_ASAP
     float x = (node.x - nodeCur.x) + (node.y - nodeCur.y) + (node.z - nodeCur.z);
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 10; i++) {
         float rVal = nodeRight.values[i];
         float lVal = nodeLeft.values[i];
         float cVal = nodeCur.values[i];

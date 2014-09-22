@@ -41,7 +41,7 @@ void gcm::LineFirstOrderInterpolator::interpolate(CalcNode& node, CalcNode& node
         }
     }
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 10; i++) {
         node.values[i] = (node0.values[i] * factor0 + node1.values[i] * factor1);
     }
 

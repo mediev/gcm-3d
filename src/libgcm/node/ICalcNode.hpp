@@ -5,7 +5,7 @@
 #include "libgcm/node/Node.hpp"
 #include "libgcm/util/Types.hpp"
 
-#define VALUES_NUMBER 9
+#define VALUES_NUMBER 10
 using namespace std;
 using namespace gcm;
 
@@ -50,7 +50,7 @@ namespace gcm
 
                 union
                 {
-                    real stress[6];
+                    real stress[9];
 
                     struct
                     {
@@ -80,6 +80,9 @@ namespace gcm
                         real szz;
                     };
                 };
+                
+                real rho;
+                
             };
         };
 

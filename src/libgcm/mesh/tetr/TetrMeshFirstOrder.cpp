@@ -1465,7 +1465,7 @@ bool gcm::TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
                                      start, direction, length, node.coords, false))
         {
                 interpolateTriangle( n1.coords, n2.coords, n3.coords, node.coords,
-                                     n1.values, n2.values, n3.values, node.values, 9);
+                                     n1.values, n2.values, n3.values, node.values, 10);
                 node.setRho((getNode(face.verts[0])).getRho());
                 node.setMaterialId((getNode(face.verts[0])).getMaterialId());
 

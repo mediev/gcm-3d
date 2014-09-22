@@ -27,9 +27,11 @@
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/PrandtlRaussPlasticityRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/FiniteStrainAnisotropicElasticMatrixSetter.hpp"
 #include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer10.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 
@@ -576,9 +578,9 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             THROW_INVALID_INPUT("Only one values element allowed for initial state");
         xml::Node valuesNode = valuesNodes.front();
 
-        gcm::real values[9];
+        gcm::real values[10];
         
-        memset(values, 0, 9*sizeof(gcm::real));
+        memset(values, 0, 10*sizeof(gcm::real));
         string vx = valuesNode.getAttributes()["vx"];
         if( !vx.empty() )
             values[0] = lexical_cast<gcm::real>(vx);
@@ -606,10 +608,14 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         string szz = valuesNode.getAttributes()["szz"];
         if( !szz.empty() )
             values[8] = lexical_cast<gcm::real>(szz);
+        string rho = valuesNode.getAttributes()["rho"];
+        if( !rho.empty() )
+            values[9] = lexical_cast<gcm::real>(rho);
         LOG_DEBUG("Initial state values: "
                         << values[0] << " " << values[1] << " " << values[2] << " "
                         << values[3] << " " << values[4] << " " << values[5] << " "
-                        << values[6] << " " << values[7] << " " << values[8] );
+                        << values[6] << " " << values[7] << " " << values[8] << " " 
+                        << values[9] );
         
         for(auto& areaNode: areaNodes)
         {
@@ -761,9 +767,9 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                     LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
             }
             corrector = nullptr;
-            setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
+            setter = makeSetterPtr<FiniteStrainAnisotropicElasticMatrixSetter>();
             if( matrixDecompositionImplementation == "numerical" )
-                decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
+                decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer10>();
             else
                 decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
         }

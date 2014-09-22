@@ -4,10 +4,10 @@
 
 ExternalVelocityCalculator::ExternalVelocityCalculator()
 {
-    U_gsl = gsl_matrix_alloc (9, 9);
-    om_gsl = gsl_vector_alloc (9);
-    x_gsl = gsl_vector_alloc (9);
-    p_gsl = gsl_permutation_alloc (9);
+    U_gsl = gsl_matrix_alloc (10, 10);
+    om_gsl = gsl_vector_alloc (10);
+    x_gsl = gsl_vector_alloc (10);
+    p_gsl = gsl_permutation_alloc (10);
 };
 
 ExternalVelocityCalculator::~ExternalVelocityCalculator()
@@ -37,7 +37,8 @@ void ExternalVelocityCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, 
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
-    assert_eq(previousNodes.size(), 9);
+	cout << "external velocities" << endl;
+    assert_eq(previousNodes.size(), 10);
 
     float local_n[3][3];
     local_n[0][0] = outer_normal[0];
@@ -52,22 +53,22 @@ void ExternalVelocityCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, 
     int outer_count = 3;
 
     // Here we will store (omega = Matrix_OMEGA * u)
-    float omega[9];
+    float omega[10];
 
-    for(int i = 0; i < 9; i++)
+    for(int i = 0; i < 10; i++)
     {
         // If omega is 'inner' one
         if(inner[i])
         {
             // Calculate omega value
             omega[i] = 0;
-            for(int j = 0; j < 9; j++)
+            for(int j = 0; j < 10; j++)
             {
                 omega[i] += matrix->getU(i,j) * previousNodes[i].values[j];
             }
             // Load appropriate values into GSL containers
             gsl_vector_set(om_gsl, i, omega[i]);
-            for(int j = 0; j < 9; j++)
+            for(int j = 0; j < 10; j++)
                 gsl_matrix_set(U_gsl, i, j, matrix->getU(i,j));
         }
         // If omega is 'outer' one
@@ -76,7 +77,7 @@ void ExternalVelocityCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, 
             // omega (as right-hand part of OLE) is zero - it is not-moving border
             gsl_vector_set(om_gsl, i, 0);
             // corresponding string in matrix is zero ...
-            for(int j = 0; j < 9; j++)
+            for(int j = 0; j < 10; j++)
                 gsl_matrix_set(U_gsl, i, j, 0);
             // ... except velocity
             if ( outer_count == 3 ) {
@@ -112,7 +113,7 @@ void ExternalVelocityCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, 
     gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
     gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
 
-    for(int j = 0; j < 9; j++)
+    for(int j = 0; j < 10; j++)
         new_node.values[j] = gsl_vector_get(x_gsl, j);
 
 };

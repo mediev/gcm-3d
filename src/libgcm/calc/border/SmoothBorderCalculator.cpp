@@ -20,13 +20,13 @@ void SmoothBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheo
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
-    assert_eq(previousNodes.size(), 9);
+    assert_eq(previousNodes.size(), 10);
 
     LOG_TRACE("Starting calc with SmoothBorderCalculator");
 
     int inner_node_num = -1;
     int outer_count = 0;
-    for(int i = 0; i < 9; i++)
+    for(int i = 0; i < 10; i++)
         if( inner[i] )
             inner_node_num = i;
         else
@@ -34,7 +34,7 @@ void SmoothBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheo
 
     assert_ne(outer_count, 3 );
 
-    for(int j = 0; j < 9; j++)
+    for(int j = 0; j < 10; j++)
         new_node.values[j] = previousNodes[inner_node_num].values[j];
 
     LOG_TRACE("Calc done");

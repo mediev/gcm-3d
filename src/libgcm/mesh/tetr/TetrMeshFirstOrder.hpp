@@ -43,7 +43,7 @@ namespace gcm
         bool checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum);
         void updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum);
         int getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz);
-        unordered_map<int, int> charactCache[18];
+        unordered_map<int, int> charactCache[20];
         unsigned long long cacheHits;
         unsigned long long cacheMisses;
 

@@ -34,21 +34,21 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
     LOG_TRACE("Start node prepare for node " << cur_node.number);
     LOG_TRACE("Node: " << cur_node);
-
+	
     // Variables used in calculations internally
 
     // Delta x on previous time layer for all the omegas
     //     omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
-    float dksi[9];
+    float dksi[10];
 
     // If the corresponding point on previous time layer is inner or not
-    bool inner[9];
+    bool inner[10];
 
     // We will store interpolated nodes on previous time layer here
     // We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
     // TODO  - We can  deal with (lambda == 0) separately
     vector<CalcNode> previous_nodes;
-    previous_nodes.resize(9);
+    previous_nodes.resize(10);
 
     // Outer normal at current point
     float outer_normal[3];
@@ -128,16 +128,16 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
                 // Delta x on previous time layer for all the omegas
                 //     omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
-                float virt_dksi[9];
+                float virt_dksi[10];
 
                 // If the corresponding point on previous time layer is inner or not
-                bool virt_inner[9];
+                bool virt_inner[10];
 
                 // We will store interpolated nodes on previous time layer here
                 // We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
                 // TODO  - We can  deal with (lambda == 0) separately
                 vector<CalcNode> virt_previous_nodes;
-                virt_previous_nodes.resize(9);
+                virt_previous_nodes.resize(10);
 
                 // Outer normal at current point
                 float virt_outer_normal[3];
@@ -162,7 +162,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
                 if (virt_outer_count != 3) {
                     LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
                     LOG_DEBUG("Origin node: " << virtMesh->getNode(virt_node.number));
-                    for (int z = 0; z < 9; z++) {
+                    for (int z = 0; z < 10; z++) {
                         LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
                         LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
                         LOG_DEBUG("PrNodes[" << z << "]: " << virt_previous_nodes[z]);
@@ -263,7 +263,6 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
 
     LOG_TRACE("Preparing elastic matrix");
     //  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
-
     switch (stage) {
     case 0: rheologyMatrix->decomposeX(cur_node);
         break;
@@ -276,7 +275,7 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
 
     LOG_TRACE("Elastic matrix eigen values:\n" << rheologyMatrix->getL());
 
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < 10; i++)
         dksi[i] = -rheologyMatrix->getL(i, i) * time_step;
 
     return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal);
@@ -289,7 +288,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
     LOG_TRACE("Start looking for nodes on previous time layer");
 
     // For all omegas
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 10; i++) {
         LOG_TRACE("Looking for characteristic " << i);
         // Check prevoius omegas ...
         bool already_found = false;
@@ -384,7 +383,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
     }
 
     int outer_count = 0;
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < 10; i++)
         if (!inner[i])
             outer_count++;
 

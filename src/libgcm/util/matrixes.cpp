@@ -127,7 +127,7 @@ float gcm::gcm_matrix::max_abs_value() const
 
 void gcm::gcm_matrix::clear()
 {
-    memset(p, 0, 81 * sizeof (float));
+    memset(p, 0, 100 * sizeof (float));
 };
 
 void gcm::gcm_matrix::setColumn(double *Clmn, int num)

@@ -16,7 +16,7 @@
 #include "libgcm/Exception.hpp"
 #include "libgcm/Logging.hpp"
 
-#define GCM_MATRIX_SIZE 9
+#define GCM_MATRIX_SIZE 10
 
 namespace gcm {
 

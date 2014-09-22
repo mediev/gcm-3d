@@ -167,6 +167,7 @@ void gcm::Mesh::setInitialState(Area* area, float* values)
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
+        node.values[9] = 1.0;
         if( area->isInArea( node ) )
             for( int k = 0; k < 9; k++ )
                 node.values[k] = values[k];
@@ -498,7 +499,7 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
     for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
         int i = itr->first;
         CalcNode& node = getNode(i);
-        if( node.isLocal() && node.isBorder() )
+        if( node.isLocal() && node.isBorder() ) 
                 method->doNextPartStep( node, getNewNode(i), tau, stage, this );
     }
 

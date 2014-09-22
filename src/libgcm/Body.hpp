@@ -66,7 +66,7 @@ namespace gcm {
         void setEngine(IEngine& engine);
         IEngine* getEngine();
 
-        void setInitialState(Area* area, float values[9]);
+        void setInitialState(Area* area, float values[10]);
 		void setBorderCondition(Area* area, unsigned int num);
 		void setContactCondition(Area* area, unsigned int num);
 

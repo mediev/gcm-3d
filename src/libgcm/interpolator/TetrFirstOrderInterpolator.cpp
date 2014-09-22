@@ -126,7 +126,7 @@ void gcm::TetrFirstOrderInterpolator::interpolate(CalcNode& node, CalcNode& node
         }
     }
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 10; i++) {
         node.values[i] = (node0.values[i] * factor[0]
                 + node1.values[i] * factor[1]
                 + node2.values[i] * factor[2]
