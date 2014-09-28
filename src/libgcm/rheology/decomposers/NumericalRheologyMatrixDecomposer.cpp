@@ -53,8 +53,10 @@ void NumericalRheologyMatrixDecomposer::decompose(const gcm_matrix& a, gcm_matri
     for (int i = 0; i < 9; i++)
     {
         gsl_complex z = gsl_vector_complex_get(eval, i);
-        if (fabs(GSL_IMAG(z)) > IMAG_THRESHOLD)
+        if (fabs(GSL_IMAG(z)) > IMAG_THRESHOLD) {
+            cout << "Eigenvalue = " << GSL_REAL(z) << " + i " << GSL_IMAG(z) << endl;
             THROW_INVALID_INPUT("Eigenvalue is complex!");
+        }
         l(i, i) = GSL_REAL(z);
     }
 

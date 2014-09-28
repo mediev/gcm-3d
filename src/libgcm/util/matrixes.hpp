@@ -41,8 +41,12 @@ namespace gcm {
 		float max_abs_value() const;
 		void clear();
 		void createE();
+        /**
+         * NOTE! setColumn is working correctly only for 9x9 matrixes!
+         */
 		void setColumn(double *Clmn, int num);
 		gcm_matrix inv() const;
+		gcm_matrix inv9() const;        
 
 		float p[GCM_MATRIX_SIZE][GCM_MATRIX_SIZE]; // Data
 	private:

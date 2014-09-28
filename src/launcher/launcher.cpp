@@ -32,6 +32,7 @@
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer10.hpp"
+#include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer10.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 
@@ -771,7 +772,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             if( matrixDecompositionImplementation == "numerical" )
                 decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer10>();
             else
-                decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
+                decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer10>();
         }
 
         matrices.push_back(makeRheologyMatrixPtr(material, setter, decomposer, corrector));

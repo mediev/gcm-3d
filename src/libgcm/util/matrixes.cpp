@@ -132,7 +132,7 @@ void gcm::gcm_matrix::clear()
 
 void gcm::gcm_matrix::setColumn(double *Clmn, int num)
 {
-    for (int i = 0; i < GCM_MATRIX_SIZE; i++)
+    for (int i = 0; i < 9; i++)
         p[i][num] = Clmn[i];
 };
 
@@ -171,5 +171,49 @@ gcm_matrix gcm::gcm_matrix::inv() const
         for (int j = 0; j < GCM_MATRIX_SIZE; j++)
             res_matrix.p[i][j] = gsl_matrix_get(Z, i, j);
 
+    gsl_matrix_free(Z);
+    gsl_matrix_free(Z1);
+    gsl_permutation_free(perm);
+    
+    return res_matrix;
+};
+
+gcm_matrix gcm::gcm_matrix::inv9() const
+{
+    gcm_matrix res_matrix;
+    // Invert the matrix using gsl library
+
+    gsl_set_error_handler_off();
+
+    gsl_matrix* Z1 = gsl_matrix_alloc(9, 9);
+    gsl_matrix* Z = gsl_matrix_alloc(9, 9);
+    gsl_permutation* perm = gsl_permutation_alloc(9);
+    int k;
+
+    for (int i = 0; i < 9; i++)
+        for (int j = 0; j < 9; j++)
+            gsl_matrix_set(Z1, i, j, p[i][j]);
+
+    int status = gsl_linalg_LU_decomp(Z1, perm, &k);
+    if (status) {
+        LOG_DEBUG("gsl_linalg_LU_decomp failed");
+        THROW_INVALID_ARG("gsl_linalg_LU_decomp failed");
+    }
+    status = gsl_linalg_LU_invert(Z1, perm, Z);
+    if (status) {
+        LOG_DEBUG("gsl_linalg_LU_invert failed");
+        THROW_INVALID_ARG("gsl_linalg_LU_invert failed");
+    }
+    for (int i = 0; i < 9; i++)
+        for (int j = 0; j < 9; j++)
+            res_matrix.p[i][j] = gsl_matrix_get(Z, i, j);
+
+    for (int i = 0; i < 10; i++)
+        res_matrix.p[i][9] = res_matrix.p[9][i] = 0;
+    
+    gsl_matrix_free(Z);
+    gsl_matrix_free(Z1);
+    gsl_permutation_free(perm);
+    
     return res_matrix;
 };

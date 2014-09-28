@@ -59,7 +59,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
     u1(6, 6) = u1(7, 7) = u1(8, 8) = 1;
 
     // Search U = U1^(-1)
-    u = u1.inv();
+    u = u1.inv9();
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
@@ -114,7 +114,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
     u1(3, 6) = u1(5, 7) = u1(8, 8) = 1;
 
     // Search U = U1^(-1)
-    u = u1.inv();
+    u = u1.inv9();
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
@@ -170,7 +170,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
     u1(3, 6) = u1(4, 7) = u1(6, 8) = 1;
 
     // Search U = U1^(-1)
-    u = u1.inv();
+    u = u1.inv9();
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, double *x) const
