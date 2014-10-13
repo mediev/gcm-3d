@@ -68,7 +68,7 @@ void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rhe
     int outer_count = 3;
 
     // Here we will store (omega = Matrix_OMEGA * u)
-    float omega[9];
+    float omega[10];
 
     for(int i = 0; i < 10; i++)
     {
