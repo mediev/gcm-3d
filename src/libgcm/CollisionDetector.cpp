@@ -62,6 +62,72 @@ void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersectio
     }
 }
 
+void CollisionDetector::find_nodes_in_intersection_withKD(const Mesh* const mesh, struct kdtree* const kd, const AABB& intersection, vector<CalcNode>& result)
+{
+	
+	// Find sizes of AABB intersection
+	const double AABBsize[3] = {intersection.maxX-intersection.minX, intersection.maxY-intersection.minY, intersection.maxZ-intersection.minZ};
+	
+	// .. and find the minimum size
+	int indx[3];
+	if(AABBsize[0] < AABBsize[1]) {
+		indx[1] = 1;
+		
+		if(AABBsize[0] < AABBsize[2]) {
+			indx[0] = 0;
+			indx[2] = 2;
+		} else {
+			indx[0] = 2;
+			indx[2] = 0;
+		}		
+	} else if(AABBsize[1] < AABBsize[2]) {
+		indx[0] = 1;
+		indx[1] = 0;
+		indx[2] = 2;
+	} else {
+		indx[0] = 2;
+		indx[1] = 1;
+		indx[2] = 0;
+	}
+	
+	// Number of spheres along two axis with non-minimum AABB intersection size
+	const double sizesRatio[2] = {ceil(AABBsize[indx[1]]/AABBsize[indx[0]]), ceil(AABBsize[indx[2]]/AABBsize[indx[0]])};
+	const double rad = AABBsize[indx[0]] * sqrt(3.0) / 2.0;
+	
+	vector<CalcNode>::iterator it;
+	struct kdres* set;
+	double pt[3];
+	double pos[3];
+	CalcNode* pNode;
+			
+	// Filling vector of vertices which are situated in AABB intersection 
+	pt[indx[0]] = AABBsize[indx[0]] / 2.0;
+	for(int i = 0; i < sizesRatio[0]; i++)
+	{
+		pt[indx[1]] = (i + 0.5) * AABBsize[indx[0]];
+		for(int j = 0; j < sizesRatio[1]; j++)
+		{
+			pt[indx[2]] = (j + 0.5) * AABBsize[indx[0]];	
+			set = kd_nearest_range(kd, pt, rad);
+			
+			while (!kd_res_end(set)) {	
+				pNode = (CalcNode*) kd_res_item(set, pos);
+				
+				if( (intersection.isInAABB(pNode)) && (pNode->isLocal()) && (pNode->isBorder()) )
+				{
+					// Checking that we haven't found it yet
+					it = find (result.begin(), result.end(), *pNode);
+					if(it == result.end())
+						result.push_back(*pNode);
+				}
+				kd_res_next(set);
+			}
+			kd_res_free(set);
+		}
+	
+	}
+}
+
 void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<int>& result)
 {
     for(int i = 0; i < mesh->getNodesNumber(); i++)
