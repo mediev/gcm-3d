@@ -101,13 +101,13 @@ void CollisionDetector::find_nodes_in_intersection_withKD(const Mesh* const mesh
 	CalcNode* pNode;
 			
 	// Filling vector of vertices which are situated in AABB intersection 
-	pt[indx[0]] = AABBsize[indx[0]] / 2.0;
+	pt[indx[0]] = intersection.min_coords[indx[0]] + AABBsize[indx[0]] / 2.0;
 	for(int i = 0; i < sizesRatio[0]; i++)
 	{
-		pt[indx[1]] = (i + 0.5) * AABBsize[indx[0]];
+		pt[indx[1]] = intersection.min_coords[indx[1]] + (i + 0.5) * AABBsize[indx[0]];
 		for(int j = 0; j < sizesRatio[1]; j++)
 		{
-			pt[indx[2]] = (j + 0.5) * AABBsize[indx[0]];	
+			pt[indx[2]] = intersection.min_coords[indx[2]] + (j + 0.5) * AABBsize[indx[0]];	
 			set = kd_nearest_range(kd, pt, rad);
 			
 			while (!kd_res_end(set)) {	
