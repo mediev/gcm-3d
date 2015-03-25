@@ -180,8 +180,9 @@ def configure(conf):
 
     conf.env.CXXFLAGS += ['-Wall']
     conf.env.CXXFLAGS += ['-std=c++11']
+    conf.env.CXXFLAGS += ['-pthread']
 
-    conf.env.LINKFLAGS += ['-lpthread', '-lrt', '-lstdc++']
+    conf.env.LINKFLAGS += ['-lpthread', '-lrt', '-lstdc++', '-pthread']
     if not conf.env.no_export_dynamic_symbols:
         conf.env.LINKFLAGS += ['-rdynamic']
 
@@ -327,7 +328,7 @@ def build(bld):
             bld(
                 features='cxx cxxprogram',
                 source=s,
-                use=['gcm', 'perf_util', 'launcher_util'] + libs,
+                use=['gcm', 'perf_util', 'launcher_util', 'launcher' ,'loaders'] + libs,
                 target='gcm3d_perf_%s' % s.name[:-4],
                 install_path=None
             )

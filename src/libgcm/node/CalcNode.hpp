@@ -552,6 +552,7 @@ namespace std {
             os << " " << node.values[i];
         os << "\n\tRho: " << node.getRho();
 		os << "\n\tIsBorder: " << node.isBorder();
+		os << "\n\tErrors: " << (int)node.getErrorFlags();
         return os;
     }
 }
