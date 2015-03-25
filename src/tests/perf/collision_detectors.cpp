@@ -11,6 +11,7 @@
 #include <log4cxx/propertyconfigurator.h>
 #endif
 
+#include "libgcm/util/KDTree.hpp"
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
 
@@ -23,7 +24,7 @@ using namespace std;
 int main() {
     MPI::Init();
     GmshInitialize();
-    
+
     auto& ffls = launcher::FileFolderLookupService::getInstance();
     
     #if CONFIG_ENABLE_LOGGING
@@ -32,14 +33,8 @@ int main() {
     #endif
     
     ffls.addPath(".");
-
-    cout << "This test compares performance of two different collision detector implementations:" << endl;
-    cout << "First implementation is BruteForceCollisionDetector that uses exhaustive search to find collisions" << endl;
-    cout << "Second implementation is ADD DESCRIPTION HERE" << endl;
-
-    cout << endl;
-
-    cout << "Generating meshes...";
+    
+    cout << "Generating meshes..." << endl;
     cout.flush();
 
     launcher::Launcher launcher;
@@ -61,7 +56,7 @@ int main() {
     AABB intersection;
 
     BruteforceCollisionDetector bcd;
-    BruteforceCollisionDetector cd; // TODO change to appropriate CD
+    BruteforceCollisionDetector cd;
 
     assert_false(bcd.is_static());
     assert_false(cd.is_static());
@@ -73,16 +68,16 @@ int main() {
 
     vector<CalcNode> nodes1;
     vector<CalcNode> nodes2;
-        
+    
     print_test_title("find_nodes_in_intersection");
 
     auto t = measure_time2(
         [&](){ nodes1.clear(); },
         [&](){ bcd.find_nodes_in_intersection(m1, intersection, nodes1); },
         [&](){ nodes2.clear(); },
-        [&](){ cd.find_nodes_in_intersection(m1, intersection, nodes2); }
+        [&](){ cd.find_nodes_in_intersection_withKD(m1, m1->getKDtree(), intersection, nodes2); }
     );
-    
+
     assert_eq(nodes1.size(), nodes2.size());
     assert_gt(nodes1.size(), 0);
         

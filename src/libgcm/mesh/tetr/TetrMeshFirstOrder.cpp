@@ -48,6 +48,11 @@ TetrMeshFirstOrder::~TetrMeshFirstOrder()
     LOG_DEBUG("Mesh destroyed");
 }
 
+struct kdtree* TetrMeshFirstOrder::getKDtree()
+{
+	return kdtree;
+}
+
 int TetrMeshFirstOrder::getTetrsNumber()
 {
     return tetrsNumber;
