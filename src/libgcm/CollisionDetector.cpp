@@ -1,5 +1,5 @@
 #include "libgcm/CollisionDetector.hpp"
-
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 #include "libgcm/node/CalcNode.hpp"
 
 using namespace gcm;
@@ -62,69 +62,43 @@ void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersectio
     }
 }
 
-void CollisionDetector::find_nodes_in_intersection_withKD(const Mesh* const mesh, struct kdtree* const kd, const AABB& intersection, vector<CalcNode>& result)
+void CollisionDetector::find_border_nodes_in_intersection(Mesh* mesh, const AABB& intersection, vector<CalcNode>& result)
 {
-	
-	// Find sizes of AABB intersection
-	const double AABBsize[3] = {intersection.maxX-intersection.minX, intersection.maxY-intersection.minY, intersection.maxZ-intersection.minZ};
-	
-	// .. and find the minimum size
-	int indx[3];
-	if(AABBsize[0] < AABBsize[1]) {
-		indx[1] = 1;
-		
-		if(AABBsize[0] < AABBsize[2]) {
-			indx[0] = 0;
-			indx[2] = 2;
-		} else {
-			indx[0] = 2;
-			indx[2] = 0;
-		}		
-	} else if(AABBsize[1] < AABBsize[2]) {
-		indx[0] = 1;
-		indx[1] = 0;
-		indx[2] = 2;
-	} else {
-		indx[0] = 2;
-		indx[1] = 1;
-		indx[2] = 0;
-	}
-	
-	// Number of spheres along two axis with non-minimum AABB intersection size
-	const double sizesRatio[2] = {ceil(AABBsize[indx[1]]/AABBsize[indx[0]]), ceil(AABBsize[indx[2]]/AABBsize[indx[0]])};
-	const double rad = AABBsize[indx[0]] * sqrt(3.0) / 2.0;
-	
-	vector<CalcNode>::iterator it;
-	struct kdres* set;
-	double pt[3];
-	double pos[3];
-	CalcNode* pNode;
-			
-	// Filling vector of vertices which are situated in AABB intersection 
-	pt[indx[0]] = intersection.min_coords[indx[0]] + AABBsize[indx[0]] / 2.0;
-	for(int i = 0; i < sizesRatio[0]; i++)
-	{
-		pt[indx[1]] = intersection.min_coords[indx[1]] + (i + 0.5) * AABBsize[indx[0]];
-		for(int j = 0; j < sizesRatio[1]; j++)
-		{
-			pt[indx[2]] = intersection.min_coords[indx[2]] + (j + 0.5) * AABBsize[indx[0]];	
-			set = kd_nearest_range(kd, pt, rad);
-			
-			while (!kd_res_end(set)) {	
-				pNode = (CalcNode*) kd_res_item(set, pos);
-				
-				if( (intersection.isInAABB(pNode)) && (pNode->isLocal()) && (pNode->isBorder()) )
-				{
-					// Checking that we haven't found it yet
-					it = find (result.begin(), result.end(), *pNode);
-					if(it == result.end())
-						result.push_back(*pNode);
-				}
-				kd_res_next(set);
-			}
-			kd_res_free(set);
+	TetrMeshSecondOrder* soMesh = dynamic_cast<TetrMeshSecondOrder*>(mesh);
+	int elemNum = soMesh->borderElements.size();
+
+	for(int i = 0; i < elemNum; i++)
+    {
+        if(soMesh->borderElements[i].size() != 0) {
+			CalcNode& node = soMesh->getNodeByLocalIndex(i);
+			if( (node.isLocal ()) && (intersection.isInAABB(node)) )
+				result.push_back(soMesh->getNodeByLocalIndex(i));
 		}
+    }
+}
+
+void CollisionDetector::find_nodes_in_intersection_withKD(const Mesh* const mesh, struct kdtree** const kdborder, const AABB& intersection, vector<CalcNode>& result)
+{
+	double pos;
+	const double intCenter[3] = {(intersection.maxX+intersection.minX)/2.0, (intersection.maxY+intersection.minY)/2.0, (intersection.maxZ+intersection.minZ)/2.0};
+	struct kdres* set [3];
 	
+	set[0] = kd_nearest_range(kdborder[0], &intCenter[0], (intersection.maxX-intersection.minX)/2.0);
+	set[1] = kd_nearest_range(kdborder[1], &intCenter[1], (intersection.maxY-intersection.minY)/2.0);
+	set[2] = kd_nearest_range(kdborder[2], &intCenter[2], (intersection.maxZ-intersection.minZ)/2.0);
+	
+	CalcNode* pNode;
+	for(int i = 0; i < 3; i++) {
+		while (!kd_res_end(set[i])) {	
+			pNode = (CalcNode*) kd_res_item(set[i], &pos);
+			
+			if( (intersection.isInAABB(pNode)) && (pNode->isLocal()) )
+			{
+				result.push_back(*pNode);
+				kd_res_next(set[i]);
+			}
+		}
+		kd_res_free(set[i]);
 	}
 }
 

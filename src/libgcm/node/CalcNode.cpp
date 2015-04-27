@@ -58,9 +58,9 @@ CalcNode& CalcNode::operator=(const CalcNode &src)
 
 bool CalcNode::operator==(const CalcNode &src) const
 {
-	return ( coords[0] == src.coords[0] 
+	return ( fabs(coords[0] == src.coords[0]) 
 				&& coords[1] == src.coords[1] 
-				&& coords[2] != src.coords[2] );		
+				&& coords[2] == src.coords[2] );		
 }
 
 CalcNode::~CalcNode()

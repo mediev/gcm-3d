@@ -46,7 +46,12 @@ namespace gcm
         std::unordered_map<int, int> charactCache[18];
         // Spatial index based on KD-Tree
         struct kdtree* kdtree;
+        // Border 1D indexes based on KD-Tree for CD
+		struct kdtree** kdborder;
+        
         void initSpatialIndex();
+        void initBorderIndexes();
+        
         unsigned long long cacheHits;
         unsigned long long cacheMisses;
 
@@ -124,6 +129,7 @@ namespace gcm
         //void copyMesh(TetrMeshFirstOrder* src);
 
 		struct kdtree* getKDtree();
+		struct kdtree** getKDborder();
 
         int getTetrsNumber();
         int getTriangleNumber();

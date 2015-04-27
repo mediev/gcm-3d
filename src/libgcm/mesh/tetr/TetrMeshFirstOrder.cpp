@@ -48,11 +48,6 @@ TetrMeshFirstOrder::~TetrMeshFirstOrder()
     LOG_DEBUG("Mesh destroyed");
 }
 
-struct kdtree* TetrMeshFirstOrder::getKDtree()
-{
-	return kdtree;
-}
-
 int TetrMeshFirstOrder::getTetrsNumber()
 {
     return tetrsNumber;
@@ -155,6 +150,44 @@ void TetrMeshFirstOrder::initSpatialIndex()
         CalcNode& node = getNode(i);
         kd_insert3( kdtree, node.coords.x, node.coords.y, node.coords.z, &node );
     }
+}
+
+struct kdtree* TetrMeshFirstOrder::getKDtree()
+{
+	initSpatialIndex();
+	return kdtree;
+}
+
+void TetrMeshFirstOrder::initBorderIndexes()
+{
+	kdborder = new struct kdtree* [3];
+	if(kdborder[0] != NULL)
+        kd_free( kdborder[0] );
+    kdborder[0] = kd_create(1);
+    
+    if(kdborder[1] != NULL)
+        kd_free( kdborder[1] );
+    kdborder[1] = kd_create(1);
+    
+    if(kdborder[2] != NULL)
+        kd_free( kdborder[2] );    
+    kdborder[2] = kd_create(1);
+    
+    for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+        int i = itr->first;
+        CalcNode& node = getNode(i);
+        if(node.isBorder()) {
+			kd_insertf( kdborder[0], &node.coords.x, &node );
+			kd_insertf( kdborder[1], &node.coords.y, &node );
+			kd_insertf( kdborder[2], &node.coords.z, &node );
+		}
+	}
+}
+
+struct kdtree** TetrMeshFirstOrder::getKDborder()
+{
+	initBorderIndexes();
+	return kdborder;
 }
 
 void TetrMeshFirstOrder::build_volume_reverse_lookups()
@@ -2172,25 +2205,25 @@ void TetrMeshFirstOrder::checkTopology(float tau)
     LOG_DEBUG("Creating spatial index");
     initSpatialIndex();
     LOG_DEBUG("Creating spatial index done");
-
+    
     if( isinf( getMaxH() ) )
     {
         LOG_DEBUG("Mesh is empty");
         return;
     }
-
+	
     auto& e = Engine::getInstance();
     GCMDispatcher* d = e.getDispatcher();
     int workers = e.getNumberOfWorkers();
     //int rank = e.getRank();
-
+	
     // FIXME@avasyukov - rethink it
     if( d->getOutline(0) == NULL )
     {
         LOG_WARN("FIXME: we need getOutline() back!");
         return;
     }
-
+    
     float maxLambda = getMaxEigenvalue();
     for( int i = 0; i < 3; i++ )
     {
@@ -2204,7 +2237,7 @@ void TetrMeshFirstOrder::checkTopology(float tau)
         memcpy( syncedArea.min_coords, outline.min_coords, 3 * sizeof(float) );
         memcpy( syncedArea.max_coords, outline.max_coords, 3 * sizeof(float) );
     }
-
+	
     /*
     memcpy( syncedArea.min_coords, expandedOutline.min_coords, 3 * sizeof(float) );
     memcpy( syncedArea.max_coords, expandedOutline.max_coords, 3 * sizeof(float) );
