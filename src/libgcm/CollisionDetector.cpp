@@ -93,10 +93,9 @@ void CollisionDetector::find_nodes_in_intersection_withKD(const Mesh* const mesh
 			pNode = (CalcNode*) kd_res_item(set[i], &pos);
 			
 			if( (intersection.isInAABB(pNode)) && (pNode->isLocal()) )
-			{
 				result.push_back(*pNode);
-				kd_res_next(set[i]);
-			}
+
+			kd_res_next(set[i]);
 		}
 		kd_res_free(set[i]);
 	}
