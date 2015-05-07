@@ -81,15 +81,13 @@ int main() {
         [&](){ cd.find_nodes_in_intersection_withKD(m1, kdBorder, intersection, nodes2); }
     );
     
-    //assert_eq(nodes1.size(), nodes2.size());
-    //cout << "nodes1 - " << nodes1.size() << "\nnodes2 - " << nodes2.size() << endl;
-    //assert_gt(nodes1.size(), 0);
+    assert_eq(nodes1.size(), nodes2.size());
       
     print_test_results("BruteforceCollisionDetector_old", t.first, "BruteforceCollisionDetector_new", t.second);
     
     cout << "Old CD found - " << nodes1.size() << " nodes\nNew CD found - " << nodes2.size() << " nodes" << endl;
     
-    /*vector<CalcNode>::iterator it;
+    vector<CalcNode>::iterator it;
     for(int i = 0; i < nodes2.size(); i++) {
 		it = find(nodes1.begin(), nodes1.end(), nodes2[i]);
 		if(it == nodes1.end()) {
@@ -97,7 +95,7 @@ int main() {
 			return -1;
 		} else 
 			nodes1.erase(it);
-	}*/
+	}
 
     return 0;
 }

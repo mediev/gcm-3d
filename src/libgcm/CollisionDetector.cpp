@@ -80,25 +80,33 @@ void CollisionDetector::find_border_nodes_in_intersection(Mesh* mesh, const AABB
 void CollisionDetector::find_nodes_in_intersection_withKD(const Mesh* const mesh, struct kdtree** const kdborder, const AABB& intersection, vector<CalcNode>& result)
 {
 	double pos;
-	const double intCenter[3] = {(intersection.maxX+intersection.minX)/2.0, (intersection.maxY+intersection.minY)/2.0, (intersection.maxZ+intersection.minZ)/2.0};
-	struct kdres* set [3];
+	const double AABBsize[3] = {intersection.maxX-intersection.minX, intersection.maxY-intersection.minY, intersection.maxZ-intersection.minZ};
+	int indx;
+	if(AABBsize[0] < AABBsize[1]) {
+		if(AABBsize[0] < AABBsize[2])
+			indx = 0;
+		else
+			indx = 2;
+	} else if(AABBsize[1] < AABBsize[2])
+		indx = 1;
+	else
+		indx = 2;
 	
-	set[0] = kd_nearest_range(kdborder[0], &intCenter[0], (intersection.maxX-intersection.minX)/2.0);
-	set[1] = kd_nearest_range(kdborder[1], &intCenter[1], (intersection.maxY-intersection.minY)/2.0);
-	set[2] = kd_nearest_range(kdborder[2], &intCenter[2], (intersection.maxZ-intersection.minZ)/2.0);
+	struct kdres* set;
+	const double intCenter = (intersection.min_coords[indx] + intersection.max_coords[indx]) / 2.0;
 	
-	CalcNode* pNode;
-	for(int i = 0; i < 3; i++) {
-		while (!kd_res_end(set[i])) {	
-			pNode = (CalcNode*) kd_res_item(set[i], &pos);
-			
-			if( (intersection.isInAABB(pNode)) && (pNode->isLocal()) )
-				result.push_back(*pNode);
+	set = kd_nearest_range(kdborder[indx], &intCenter, (intersection.max_coords[indx]-intersection.min_coords[indx])/2.0);
 
-			kd_res_next(set[i]);
-		}
-		kd_res_free(set[i]);
+	CalcNode* pNode;
+	while (!kd_res_end(set)) {	
+		pNode = (CalcNode*) kd_res_item(set, &pos);
+			
+		if( (intersection.isInAABB(pNode)) && (pNode->isLocal()) )
+			result.push_back(*pNode);
+
+		kd_res_next(set);
 	}
+	kd_res_free(set);
 }
 
 void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<int>& result)
