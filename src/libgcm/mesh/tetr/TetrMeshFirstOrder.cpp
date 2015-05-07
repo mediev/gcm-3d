@@ -152,12 +152,6 @@ void TetrMeshFirstOrder::initSpatialIndex()
     }
 }
 
-struct kdtree* TetrMeshFirstOrder::getKDtree()
-{
-	initSpatialIndex();
-	return kdtree;
-}
-
 void TetrMeshFirstOrder::initBorderIndexes()
 {
 	kdborder = new struct kdtree* [3];

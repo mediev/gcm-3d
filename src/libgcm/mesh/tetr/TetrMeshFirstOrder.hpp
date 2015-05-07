@@ -128,7 +128,6 @@ namespace gcm
         virtual ~TetrMeshFirstOrder();
         //void copyMesh(TetrMeshFirstOrder* src);
 
-		struct kdtree* getKDtree();
 		struct kdtree** getKDborder();
 
         int getTetrsNumber();

@@ -78,14 +78,11 @@ int main() {
         [&](){ bcd.find_nodes_in_intersection(m1, intersection, nodes1); },
         [&](){ nodes2.clear(); },
         [&](){ cd.find_border_nodes_in_intersection(m1, intersection, nodes2); }
-    );
-	
-	cout << "Old CD found - " << nodes1.size() << " nodes\nNew CD found - " << nodes2.size() << " nodes" << endl;
-    
-    assert_eq(nodes1.size(), nodes2.size());
-    assert_gt(nodes1.size(), 0);
+    );    
       
-    print_test_results("BruteforceCollisionDetector_old", t.first, "BruteforceCollisionDetector_new", t.second);
+    print_test_results("BruteforceCollisionDetector", t.first, "BruteforceCollisionDetector_with_border", t.second);
+    cout << "Old CD found - " << nodes1.size() << " nodes\nNew CD with border nodes found - " << nodes2.size() << " nodes" << endl;
+    assert_eq(nodes1.size(), nodes2.size());
     
     vector<CalcNode>::iterator it;
     for(int i = 0; i < nodes2.size(); i++) {
