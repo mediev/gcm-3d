@@ -89,7 +89,7 @@ int main() {
     );
       
     print_test_results("BruteforceCollisionDetector_with_border", t.first, "BruteforceCollisionDetector_with_kd", t.second);
-    cout << "CD with border nodes found - " << nodes1.size() << " nodes\nCD found - " << nodes2.size() << " nodes" << endl;
+    cout << "CD 'with border' found - " << nodes1.size() << " nodes\nCD 'with kd' found - " << nodes2.size() << " nodes" << endl;
     assert_eq(nodes1.size(), nodes2.size());
     assert_eq(nodes2.size(), nodes3.size());
     
