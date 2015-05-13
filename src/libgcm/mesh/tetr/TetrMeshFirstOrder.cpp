@@ -30,6 +30,9 @@ TetrMeshFirstOrder::TetrMeshFirstOrder()
     cacheMisses = 0;
     interpolator = new TetrFirstOrderInterpolator();
     kdtree = NULL;
+    
+    kdborder = new struct kdtree* [3];
+    kdborder[0] = kdborder[1] = kdborder[2] = NULL;
 }
 
 TetrMeshFirstOrder::~TetrMeshFirstOrder()
@@ -154,17 +157,16 @@ void TetrMeshFirstOrder::initSpatialIndex()
 
 void TetrMeshFirstOrder::initBorderIndexes()
 {
-	kdborder = new struct kdtree* [3];
-//	if(kdborder[0] != NULL)
-//        kd_free( kdborder[0] );
+	if(kdborder[0] != NULL)
+        kd_free( kdborder[0] );
     kdborder[0] = kd_create(1);
     
-//    if(kdborder[1] != NULL)
-//        kd_free( kdborder[1] );
+    if(kdborder[1] != NULL)
+        kd_free( kdborder[1] );
     kdborder[1] = kd_create(1);
     
-//    if(kdborder[2] != NULL)
-//        kd_free( kdborder[2] );    
+    if(kdborder[2] != NULL)
+        kd_free( kdborder[2] );    
     kdborder[2] = kd_create(1);
     
     for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
