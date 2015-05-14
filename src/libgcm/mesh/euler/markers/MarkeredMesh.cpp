@@ -31,7 +31,8 @@ void MarkeredMesh::preProcessGeometry()
 }
 
 void MarkeredMesh::checkTopology(float tau) {
-    reconstructBorder();
+    if (movable)
+        reconstructBorder();
 }
 
 void MarkeredMesh::logMeshStats() {
@@ -43,6 +44,9 @@ const MarkeredSurface& MarkeredMesh::getSurface() {
 
 void MarkeredMesh::setSurface(const MarkeredSurface& surface) {
     this->surface = surface;
+    this->center = surface.getAABB().getCenter();
+    LOG_DEBUG("Mesh center: " << this->center);
+    LOG_DEBUG("AABB: " << surface.getAABB());
     markersOffset.resize(surface.getNumberOfMarkerNodes());
 }
 
@@ -80,9 +84,9 @@ void MarkeredMesh::reconstructBorder()
         auto minEulerCoords = getCellEulerIndexByCoords(minCoords)-vector3u(1, 1, 1);
         auto maxEulerCoords = getCellEulerIndexByCoords(maxCoords)+vector3u(1, 1, 1);
 
-        assert_lt(minEulerCoords.x, dimensions.x);
-        assert_lt(minEulerCoords.y, dimensions.y);
-        assert_lt(minEulerCoords.z, dimensions.z);
+        assert_lt(minEulerCoords.x, dimensions.x,{LOG_DEBUG(v1 << v2 << v3);});
+        assert_lt(minEulerCoords.y, dimensions.y,{LOG_DEBUG(v1 << v2 << v3);});
+        assert_lt(minEulerCoords.z, dimensions.z,{LOG_DEBUG(v1 << v2 << v3);});
 
         assert_lt(maxEulerCoords.x, dimensions.x);
         assert_lt(maxEulerCoords.y, dimensions.y);
@@ -125,24 +129,11 @@ void MarkeredMesh::reconstructBorder()
 
     LOG_DEBUG("Filling mesh interior");
 
-    //auto index = surface.getRegions()[0]/2;
-    //const auto& face = surface.getMarkerFaces()[index];
-    //const auto& node = nodes[face.verts[0]];
-    //vector3r dir;
-    //findTriangleFaceNormal(nodes[face.verts[0]].coords, nodes[face.verts[1]].coords, nodes[face.verts[2]].coords, &dir.x, &dir.y, &dir.z);
-
-    //auto cellIndex = getCellEulerIndexByCoords(node.coords);
     auto cellIndex = getCellEulerIndexByCoords(surface.getAABB().getCenter());
 
-    //dir.normalize();
+    queue<vector3i> fill_queue;
 
-    //cellIndex.x -= sgn(dir.x)*ceil(fabs(dir.x));
-    //cellIndex.y -= sgn(dir.y)*ceil(fabs(dir.y));
-    //cellIndex.z -= sgn(dir.z)*ceil(fabs(dir.z));
-
-    queue<vector3u> fill_queue;
-
-    fill_queue.push(cellIndex);
+    fill_queue.push(vector3i(cellIndex.x, cellIndex.y, cellIndex.z));
 
     vector3i neighbs[] =
     {
@@ -156,6 +147,8 @@ void MarkeredMesh::reconstructBorder()
 
     uint innerCells = 0;
 
+    bool invert = false;
+
     while (!fill_queue.empty())
     {
         auto next = fill_queue.front();
@@ -163,25 +156,32 @@ void MarkeredMesh::reconstructBorder()
 
         if (cellStatus[next.x][next.y][next.z])
             continue;
-        cellStatus[next.x][next.y][next.z] = true;
+        cellStatus[next.x][next.y][next.z] = 2;
         innerCells++;
 
         for (auto& neigh: neighbs)
         {
             auto _next = next + neigh;
 
-            assert_gt(_next.x, 0);
-            assert_gt(_next.y, 0);
-            assert_gt(_next.z, 0);
-
-            assert_lt(_next.x, dimensions.x);
-            assert_lt(_next.y, dimensions.y);
-            assert_lt(_next.z, dimensions.z);
+            if (_next.x < 0 || _next.y < 0 || _next.z < 0 || _next.x == dimensions.x || _next.y == dimensions.y || _next.z == dimensions.z)
+            {
+                invert = true;
+                continue;
+            }
 
             if (!cellStatus[_next.x][_next.y][_next.z])
                 fill_queue.push(_next);
         }
     }
+
+    if (invert)
+        for (uint i = 0; i < dimensions.x; i++)
+            for (uint j = 0; j < dimensions.y; j++)
+                for (uint k = 0; k < dimensions.z; k++)
+                    if (cellStatus[i][j][k] == 2)
+                        cellStatus[i][j][k] = 0;
+                    else if (cellStatus[i][j][k] == 0)
+                        cellStatus[i][j][k] = 1;
 
     LOG_DEBUG("Found " << innerCells << " inner cells");
 
@@ -285,17 +285,17 @@ void MarkeredMesh::reconstructBorder()
                                     auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
                                     norm2 += node.coords - cellCenter;
 								}
-                    assert_gt(cnt, 0);
-                    norm /= cnt;
-                    norm.normalize();
+//                    assert_gt(cnt, 0);
+//                    norm /= cnt;
+//                    norm.normalize();
 
                     norm2.normalize();
                     assert_gt(norm2.length(), 0.0);
 
-                    if  (norm*norm2 < 0.8) // angle between two normals greater then M_PI/6
+//                    if  (norm*norm2 < 0.8) // angle between two normals greater then M_PI/6
                         borderNormals[node.number] = norm2;
-                    else
-                        borderNormals[node.number] = norm;
+//                    else
+//                        borderNormals[node.number] = norm;
                 }
 
             }
@@ -307,9 +307,12 @@ void MarkeredMesh::reconstructBorder()
         int y = index.y;
         int z = index.z;
 
-        for (int i = -1; i <= 1; i+=2)
-            for (int j = -1; j <= 1; j+=2)
-                for (int k = -1; k <= 1; k+=2)
+        float minDist = numeric_limits<float>::infinity();
+        int _i, _j, _k = -1;
+
+        for (int i = -5; i <= 5; i+=2)
+            for (int j = -5; j <= 5; j+=2)
+                for (int k = -5; k <= 5; k+=2)
                 {
                     int _x = x + i;
                     int _y = y + j;
@@ -326,10 +329,21 @@ void MarkeredMesh::reconstructBorder()
                     const auto& node  = this->getNodeByEulerMeshIndex(vector3u(_x, _y, _z));
 
                     if (wasUsed[node.number])
-                        return node;
+                    {
+                        float dist = vectorNorm(i, j, k);
+                        if (dist < minDist)
+                        {
+                            minDist = dist;
+                            _i = _x;
+                            _j = _y;
+                            _k = _z;
+                        }
+                    }
                 }
-
-        THROW_BAD_MESH("Can't find used neighbour node ");
+        if (_k != -1)
+            return this->getNodeByEulerMeshIndex(vector3u(_i, _j, _k));
+        else
+            THROW_BAD_MESH("Failed find used neighbour node ");
     };
 
     for (auto idx: nodesToFix)

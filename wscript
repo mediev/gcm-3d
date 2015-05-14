@@ -16,7 +16,7 @@ VERSION = '0.1'
 APPNAME = 'gcm3d'
 
 out = 'build'
-env_file = os.path.join(out, 'current_env.txt')
+env_file = os.path.join(out, 'current_env.py')
 
 
 def init(ctx):
@@ -221,6 +221,7 @@ def configure(conf):
 
     if conf.options.profile:
         conf.env.CXXFLAGS += ['-pg']
+        conf.env.LINKFLAGS += ['-pg']
         build_variant += ['profile']
 
     if conf.options.coverage:

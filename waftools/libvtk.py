@@ -33,16 +33,19 @@ def configure(conf):
         '/usr/lib'
     ]
     for l in  lib_path:
-        for d in os.listdir(l):
-            full_path = l + '/' + d
-            if os.path.isdir(full_path):
-                if d.startswith('vtk-'):
-                    conf.env.LIBPATH_LIBVTK += [full_path]
+        if os.path.isdir(l):
+            for d in os.listdir(l):
+                full_path = l + '/' + d
+                if os.path.isdir(full_path):
+                    if d.startswith('vtk-'):
+                        conf.env.LIBPATH_LIBVTK += [full_path]
 
     LIBS = {
         '5': ['vtkCommon', 'vtkFiltering', 'vtkIO'],
         '6': ['vtkCommonCore', 'vtkCommonDataModel', 'vtkCommonExecutionModel', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']
     }
+
+    LIBS['6.1'] = [l + '-6.1' for l in LIBS['6']]
 
     for v in LIBS:
         libs = LIBS[v]
@@ -65,7 +68,7 @@ def configure(conf):
             )
         except:
             continue
-        conf.define('CONFIG_VTK_%s' % v, 1)
+        conf.define('CONFIG_VTK_%s' % v[0], 1)
         conf.end_msg(version)
         return
     conf.end_msg('not found')
