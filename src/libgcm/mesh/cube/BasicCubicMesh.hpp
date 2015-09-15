@@ -42,7 +42,7 @@ namespace gcm
         float meshH;
 
         // Number of cubes along axis
-        int numX, numY, numZ;
+        uint numX, numY, numZ;
 
         USE_LOGGER;
 
@@ -68,9 +68,13 @@ namespace gcm
 
         bool interpolateBorderNode(const vector3r& x, const vector3r& dx, CalcNode& node);
 
-        void setNumX(int _numX);
-        void setNumY(int _numY);
-        void setNumZ(int _numZ);
+        void setNumX(uint _numX);
+        void setNumY(uint _numY);
+        void setNumZ(uint _numZ);
+
+        uint getNumX() const;
+        uint getNumY() const;
+        uint getNumZ() const;
 
         virtual const SnapshotWriter& getSnaphotter() const override;
         virtual const SnapshotWriter& getDumper() const override;

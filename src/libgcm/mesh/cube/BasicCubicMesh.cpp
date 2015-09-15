@@ -324,14 +324,30 @@ void BasicCubicMesh::setNumX(int _numX)
 	numX = _numX;
 }
 
+uint BasicCubicMesh::getNumX() const
+{
+	return numX;
+}
+
+
 void BasicCubicMesh::setNumY(int _numY)
 {
 	numY = _numY;
 }
 
+uint BasicCubicMesh::getNumY() const
+{
+	return numY;
+}
+
 void BasicCubicMesh::setNumZ(int _numZ)
 {
 	numZ = _numZ;
+}
+
+uint BasicCubicMesh::getNumZ() const
+{
+	return numZ;
 }
 
 const SnapshotWriter& BasicCubicMesh::getSnaphotter() const

@@ -4,6 +4,8 @@
 
 using namespace gcm;
 using std::vector;
+using std::min;
+using std::max;
 
 CollisionDetector::CollisionDetector() {
     INIT_LOGGER("gcm.CollisionDetector");
@@ -60,6 +62,35 @@ void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersectio
                 result.push_back(node);
         }
     }
+}
+
+void CollisionDetector::find_nodes_in_intersection(BasicCubicMesh* mesh, AABB& intersection, vector<CalcNode>& result)
+{
+	int numX = mesh->getNumX();
+	int numY = mesh->getNumY();
+	int numZ = mesh->getNumZ();
+	AABB& outline = mesh->getOutline();
+
+	int i_min =	max( int( (intersection.minX - outline.minX) / numX ), 0);
+	int i_max =	min( int( (intersection.maxX - outline.minX) / numX ) + 1, numX);
+	int j_min =	max( int( (intersection.minY - outline.minY) / numY), 0);
+	int j_max =	min( int( (intersection.maxY - outline.minY) / numY ) + 1, numY);
+	int k_min =	max( int( (intersection.minZ - outline.minZ) / numZ ), 0);
+	int k_max =	min( int( (intersection.maxZ - outline.minZ) / numZ ) + 1, numZ);
+
+	int num;
+	for( int k = k_min; k <= k_max; k++ )
+		for( int j = j_min; j <= j_max; j++ )
+			for( int i = i_min; i <= i_max; i++ )
+	        {
+				num = i * (numY + 1) * (numZ + 1) + j * (numZ + 1) + k;
+				CalcNode& node = mesh->getNodeByLocalIndex(num);
+		        if ( (node.isLocal ()) && (node.isBorder ()) )
+		        {
+		            if(intersection.isInAABB(node))
+		                result.push_back(node);
+		        }
+	        }
 }
 
 void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<int>& result)
